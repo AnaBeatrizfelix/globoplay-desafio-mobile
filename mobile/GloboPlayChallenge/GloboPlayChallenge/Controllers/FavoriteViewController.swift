@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  FavoriteViewController.swift
 //  GloboPlayChallenge
 //
 //  Created by ana on 01/10/25.
@@ -7,13 +7,15 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class FavoriteViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-    }
 
+        view.backgroundColor = .systemBackground
+    }
+    
+
+  
 
 }
-
