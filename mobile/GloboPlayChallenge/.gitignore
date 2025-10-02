@@ -14,3 +14,5 @@ DerivedData/
 build/
 
 
+.DS_Store
+GloboPlayChallenge.xcodeproj/project.xcworkspace/xcshareddata/
