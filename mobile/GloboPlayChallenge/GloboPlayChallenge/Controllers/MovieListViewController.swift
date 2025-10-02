@@ -15,15 +15,19 @@ class MovieListViewController: UIViewController, UITableViewDelegate {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-        title = "Filmes Populares"
+//        title = "Filmes Populares"
         
         addSubviews()
         setupConstraints()
         setupTableView()
+        configureNavBar()
         
         Task {
             await fetchMovies()
         }
+    }
+    private func configureNavBar() {
+        guard let image = UIImage(named: "logoGP") else { return }
     }
     
     private func addSubviews() {
