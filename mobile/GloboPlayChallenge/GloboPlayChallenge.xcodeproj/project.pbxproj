@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A1F827CD2E8E56B900BECFC9 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = A1F827CC2E8E56B900BECFC9 /* SDWebImage */; };
+		A1F827CF2E8E56B900BECFC9 /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = A1F827CE2E8E56B900BECFC9 /* SDWebImageMapKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		A1F826C82E8CDACB00BECFC9 /* GloboPlayChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GloboPlayChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1F827CF2E8E56B900BECFC9 /* SDWebImageMapKit in Frameworks */,
+				A1F827CD2E8E56B900BECFC9 /* SDWebImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = GloboPlayChallenge;
 			packageProductDependencies = (
+				A1F827CC2E8E56B900BECFC9 /* SDWebImage */,
+				A1F827CE2E8E56B900BECFC9 /* SDWebImageMapKit */,
 			);
 			productName = GloboPlayChallenge;
 			productReference = A1F826C82E8CDACB00BECFC9 /* GloboPlayChallenge.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = A1F826BF2E8CDACB00BECFC9;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A1F827CB2E8E56B900BECFC9 /* XCRemoteSwiftPackageReference "SDWebImage" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A1F826C92E8CDACB00BECFC9 /* Products */;
 			projectDirPath = "";
@@ -335,6 +347,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1F827CB2E8E56B900BECFC9 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.21.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1F827CC2E8E56B900BECFC9 /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1F827CB2E8E56B900BECFC9 /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		A1F827CE2E8E56B900BECFC9 /* SDWebImageMapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1F827CB2E8E56B900BECFC9 /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImageMapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A1F826C02E8CDACB00BECFC9 /* Project object */;
 }
