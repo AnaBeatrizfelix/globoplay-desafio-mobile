@@ -7,6 +7,12 @@
 
 import UIKit
 
+enum Sections: Int {
+    case cinema = 0
+    case series = 1
+    case novelas = 2
+}
+
 class HomeViewController: UIViewController {
     
     
@@ -27,20 +33,20 @@ class HomeViewController: UIViewController {
         
         homeFeedtable.delegate = self
         homeFeedtable.dataSource = self
-            
+        
         configureNavBar()
     }
     
     private func configureNavBar() {
         
         guard let image = UIImage(named: "logoGP") else { return }
- 
+        
         let resizedImage = resizeImage(image: image, targetSize: CGSize(width: 120, height: 110))
         
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: resizedImage, style: .done, target: self, action: nil)
         navigationController?.navigationBar.tintColor = .white
-       }
+    }
     
     private func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
         let renderer = UIGraphicsImageRenderer(size: targetSize)
@@ -70,7 +76,44 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.identifier, for: indexPath) as? CollectionViewTableViewCell else {
             return UITableViewCell()
         }
-        return cell
+            
+            switch indexPath.section {
+            case Sections.cinema.rawValue:
+                Task {
+                    do {
+                        let movies = try await MovieService().getPopularMovies()
+                        cell.configure(with: movies)
+                    } catch {
+                        print("Erro Cinema:", error.localizedDescription)
+                    }
+                }
+                
+            case Sections.series.rawValue:
+                Task {
+                    do {
+                        let series = try await MovieService().getPopularSeries()
+                        cell.configure(with: series)
+                    } catch {
+                        print("Erro Séries:", error.localizedDescription)
+                    }
+                }
+                
+            case Sections.novelas.rawValue:
+                Task {
+                    do {
+                        let novelas = try await MovieService().getDiscoverTV()
+                        cell.configure(with: novelas)
+                    } catch {
+                        print("Erro Novelas:", error.localizedDescription)
+                    }
+                }
+                
+            default:
+                return UITableViewCell()
+            }
+
+            return cell
+
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
