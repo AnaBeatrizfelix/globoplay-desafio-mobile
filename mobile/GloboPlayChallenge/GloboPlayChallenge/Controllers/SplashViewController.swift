@@ -14,7 +14,7 @@ class SplashViewController: UIViewController {
 
         view.backgroundColor = .clear
                setupLayout()
-               navigateToMovies()
+        navigateToMainTab()
         
     }
     
@@ -29,12 +29,11 @@ class SplashViewController: UIViewController {
                 logoImageView.heightAnchor.constraint(equalToConstant: 200)
             ])
 }
-    private func navigateToMovies() {
+    private func navigateToMainTab() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let vc = HomeViewController()
-            let nav = UINavigationController(rootViewController: vc)
-            nav.modalPresentationStyle = .fullScreen
-            self.present(nav, animated: true)
+            let tabBar = MainTabBarViewController()
+            tabBar.modalPresentationStyle = .fullScreen
+            self.present(tabBar, animated: true)
         }
     }
 }

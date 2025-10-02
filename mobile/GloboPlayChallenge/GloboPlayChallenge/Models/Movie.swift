@@ -16,6 +16,13 @@ struct Movie: Decodable {
     let genreIds: [Int]
     let title: String?
     
+    private(set) var isSelected: Bool? = false
+    
+    //MARK: - Class Methods
+    
+    mutating func changeSelectionStatus() {
+        isSelected = !(isSelected ?? false)      }
+    
     enum CodingKeys: String, CodingKey {
         case id, overview, title
         case mediaType = "media_type"
@@ -24,24 +31,5 @@ struct Movie: Decodable {
         case posterPath = "poster_path"
         case releaseDate = "release_date"
         case genreIds = "genre_ids"
-    }
-}
-
-// MARK: - Extensões úteis
-extension Movie {
-    /// URL completa do poster
-    var posterURL: URL? {
-        guard let path = posterPath else { return nil }
-        return URL(string: "https://image.tmdb.org/t/p/w500\(path)")
-    }
-    
-    /// Título pronto para exibição
-    var displayTitle: String {
-        originalTitle ?? "Título indisponível"
-    }
-    
-    /// Data formatada
-    var displayReleaseDate: String {
-        releaseDate ?? "N/A"
     }
 }
