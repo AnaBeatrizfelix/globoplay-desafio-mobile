@@ -16,7 +16,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A1F827712E8E35F600BECFC9 /* Exceptions for "GloboPlayChallenge" folder in "GloboPlayChallenge" target */ = {
+		A1F826DA2E8CDACC00BECFC9 /* Exceptions for "GloboPlayChallenge" folder in "GloboPlayChallenge" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -29,7 +29,7 @@
 		A1F826CA2E8CDACB00BECFC9 /* GloboPlayChallenge */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				A1F827712E8E35F600BECFC9 /* Exceptions for "GloboPlayChallenge" folder in "GloboPlayChallenge" target */,
+				A1F826DA2E8CDACC00BECFC9 /* Exceptions for "GloboPlayChallenge" folder in "GloboPlayChallenge" target */,
 			);
 			path = GloboPlayChallenge;
 			sourceTree = "<group>";
