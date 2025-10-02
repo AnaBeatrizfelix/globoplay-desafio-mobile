@@ -10,22 +10,9 @@
 		A1F826C82E8CDACB00BECFC9 /* GloboPlayChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GloboPlayChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A1F826DA2E8CDACC00BECFC9 /* Exceptions for "GloboPlayChallenge" folder in "GloboPlayChallenge" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = A1F826C72E8CDACB00BECFC9 /* GloboPlayChallenge */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A1F826CA2E8CDACB00BECFC9 /* GloboPlayChallenge */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				A1F826DA2E8CDACC00BECFC9 /* Exceptions for "GloboPlayChallenge" folder in "GloboPlayChallenge" target */,
-			);
 			path = GloboPlayChallenge;
 			sourceTree = "<group>";
 		};
