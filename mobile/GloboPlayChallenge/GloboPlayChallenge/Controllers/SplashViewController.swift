@@ -31,7 +31,7 @@ class SplashViewController: UIViewController {
 }
     private func navigateToMovies() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let vc = MovieListViewController()
+            let vc = HomeViewController()
             let nav = UINavigationController(rootViewController: vc)
             nav.modalPresentationStyle = .fullScreen
             self.present(nav, animated: true)

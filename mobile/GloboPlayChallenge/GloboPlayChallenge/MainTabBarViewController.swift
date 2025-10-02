@@ -14,7 +14,7 @@ class MainTabBarViewController: UITabBarController {
         view.backgroundColor = .systemYellow
         
         
-        let vc1 = UINavigationController(rootViewController: MovieListViewController())
+        let vc1 = UINavigationController(rootViewController: HomeViewController())
         let vc2 = UINavigationController(rootViewController: FavoriteViewController())
         
         vc1.tabBarItem.image = UIImage(systemName: "house")

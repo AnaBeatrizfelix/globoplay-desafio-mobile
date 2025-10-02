@@ -10,9 +10,9 @@ class CollectionViewTableViewCell: UITableViewCell {
         let layout = UICollectionViewFlowLayout()
         layout.itemSize = CGSize(width: 140, height: 200)
         layout.scrollDirection = .horizontal
-        let CollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        // collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
-        return CollectionView
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        return collectionView
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
