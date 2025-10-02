@@ -56,7 +56,7 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate, UICollectionVie
         }
         
         
-        let model = movies [indexPath.row].poster_path ?? "placeholder-image"
+        let model = movies [indexPath.row].posterPath ?? "placeholder-image"
         cell.configure(with: model)
         
         return cell
@@ -65,4 +65,30 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate, UICollectionVie
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return movies.count
     }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let movie = movies[indexPath.row]
+        let detailsVC = MovieDetailsViewController(movie: movie)
+        
+        if let parentVC = self.parentViewController {
+            parentVC.navigationController?.pushViewController(detailsVC, animated: true)
+        }
+    }
 }
+
+extension UIView {
+    var parentViewController: UIViewController? {
+        var parentResponder: UIResponder? = self
+        
+        while let responder = parentResponder {
+            guard let vc = responder as? UIViewController else {
+                parentResponder = responder.next
+                continue
+            }
+            return vc
+        }
+        
+        return nil
+    }
+}
+
+
