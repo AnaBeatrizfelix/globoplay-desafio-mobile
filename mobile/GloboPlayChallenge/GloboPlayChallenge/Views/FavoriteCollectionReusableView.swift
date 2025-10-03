@@ -15,9 +15,9 @@ class FavoriteCollectionReusableView: UICollectionReusableView {
     private lazy var headerLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 28.0, weight: .medium)
+        label.font = .systemFont(ofSize: 26.0, weight: .medium)
         label.textColor = .white
-        label.textAlignment = .left
+        label.textAlignment = .center
         return label
     }()
     
@@ -33,7 +33,7 @@ class FavoriteCollectionReusableView: UICollectionReusableView {
     
     // MARK: - Configure
     func setupTitle(_ text: String) {
-        headerLabel.text = text.uppercased()
+        headerLabel.text = text
     }
     
     // MARK: - Layout
