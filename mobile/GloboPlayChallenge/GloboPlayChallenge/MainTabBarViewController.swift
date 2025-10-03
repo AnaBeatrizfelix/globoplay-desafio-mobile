@@ -15,7 +15,7 @@ class MainTabBarViewController: UITabBarController {
         
         
         let vc1 = UINavigationController(rootViewController: HomeViewController())
-        let vc2 = UINavigationController(rootViewController: FavoriteViewController())
+        let vc2 = UINavigationController(rootViewController: FavoriteMoviesViewController())
         
         vc1.tabBarItem.image = UIImage(systemName: "house")
         vc2.tabBarItem.image = UIImage(systemName: "heart.rectangle.fill")

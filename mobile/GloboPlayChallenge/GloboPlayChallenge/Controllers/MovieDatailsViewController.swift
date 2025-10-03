@@ -4,7 +4,6 @@ class MovieDetailsViewController: UIViewController {
     
     private var movie: Movie
     
-  
     private let posterImageView: UIImageView = {
         let imgView = UIImageView()
         imgView.translatesAutoresizingMaskIntoConstraints = false
@@ -35,7 +34,7 @@ class MovieDetailsViewController: UIViewController {
         return label
     }()
     
-    // Sinopse
+   
     private let overviewLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -75,10 +74,11 @@ class MovieDetailsViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.titleLabel?.lineBreakMode = .byClipping
         button.contentHorizontalAlignment = .center
+        button.addTarget(self, action: #selector(didTapMyListButton), for: .touchUpInside)
         return button
     }()
     
-    // SegmentControl
+   
     private let segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: ["ASSISTA TAMBÉM", "DETALHES"])
         sc.translatesAutoresizingMaskIntoConstraints = false
@@ -101,6 +101,9 @@ class MovieDetailsViewController: UIViewController {
         view.backgroundColor = .black
         setupUI()
         configureWithMovie()
+        updateMyListButton()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(updateMyListButton), name: .favoritesUpdated, object: nil)
     }
     
     init(movie: Movie) {
@@ -111,6 +114,30 @@ class MovieDetailsViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    // MARK: - Favoritar
+        @objc private func didTapMyListButton() {
+            MovieManager.shared.add(movie)
+            updateMyListButton()
+        }
+        
+    @objc private func updateMyListButton() {
+            var config = UIButton.Configuration.bordered()
+            config.imagePlacement = .leading
+            config.imagePadding = 6
+            config.cornerStyle = .medium
+
+            if MovieManager.shared.favoritesMovies.contains(where: { $0.id == movie.id }) {
+                config.title = "Adicionado"
+                config.image = UIImage(systemName: "checkmark")
+                config.baseForegroundColor = .lightGray
+            } else {
+                config.title = "Minha lista"
+                config.image = UIImage(systemName: "plus")
+                config.baseForegroundColor = .white
+            }
+
+            myListButton.configuration = config
+        }
     
     private func setupUI() {
         view.addSubview(posterImageView)
@@ -177,4 +204,20 @@ class MovieDetailsViewController: UIViewController {
         Lançamento: \(movie.releaseDate ?? "N/A")
         """
     }
+}
+
+#Preview {
+    let mockMovie = Movie(
+          id: 1,
+          mediaType: "movie",
+          originalLanguage: "pt",
+          originalTitle: "Filme de Exemplo",
+          posterPath: "/test.jpg",
+          overview: "Esse é apenas um exemplo de filme para o Preview.",
+          //vote_content: 123,
+          releaseDate: "2025-10-02",
+          // vote_average: 7.8,
+          genreIds: [28, 12], title: "filme de exemplo"
+      )
+    return MovieDetailsViewController(movie: mockMovie)
 }
