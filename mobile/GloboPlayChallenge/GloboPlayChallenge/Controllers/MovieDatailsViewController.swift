@@ -102,6 +102,8 @@ class MovieDetailsViewController: UIViewController {
         setupUI()
         configureWithMovie()
         updateMyListButton()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(updateMyListButton), name: .favoritesUpdated, object: nil)
     }
     
     init(movie: Movie) {
@@ -114,11 +116,11 @@ class MovieDetailsViewController: UIViewController {
     }
     // MARK: - Favoritar
         @objc private func didTapMyListButton() {
-            MovieManager.shared.add(movie)   
+            MovieManager.shared.add(movie)
             updateMyListButton()
         }
         
-        private func updateMyListButton() {
+    @objc private func updateMyListButton() {
             var config = UIButton.Configuration.bordered()
             config.imagePlacement = .leading
             config.imagePadding = 6
@@ -204,4 +206,18 @@ class MovieDetailsViewController: UIViewController {
     }
 }
 
-
+#Preview {
+    let mockMovie = Movie(
+          id: 1,
+          mediaType: "movie",
+          originalLanguage: "pt",
+          originalTitle: "Filme de Exemplo",
+          posterPath: "/test.jpg",
+          overview: "Esse é apenas um exemplo de filme para o Preview.",
+          //vote_content: 123,
+          releaseDate: "2025-10-02",
+          // vote_average: 7.8,
+          genreIds: [28, 12], title: "filme de exemplo"
+      )
+    return MovieDetailsViewController(movie: mockMovie)
+}

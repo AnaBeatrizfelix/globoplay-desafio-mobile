@@ -32,6 +32,10 @@ class FavoriteMovieCollectionViewCell: UICollectionViewCell {
     private lazy var favoriteButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
+        let iconImage = UIImage(systemName: "heart.fill")?
+            .withTintColor(.systemRed, renderingMode: .alwaysOriginal)
+        button.setImage(iconImage, for: .normal)
+        
         button.addTarget(self, action: #selector(didTapFavoriteButton), for: .touchUpInside)
         return button
     }()
@@ -58,7 +62,7 @@ class FavoriteMovieCollectionViewCell: UICollectionViewCell {
             moviePosterImageView.topAnchor.constraint(equalTo: topAnchor),
             moviePosterImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             moviePosterImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            moviePosterImageView.heightAnchor.constraint(equalToConstant: 140),
+            moviePosterImageView.heightAnchor.constraint(equalToConstant: 180),
             
             movieTitleLabel.topAnchor.constraint(equalTo: moviePosterImageView.bottomAnchor, constant: 8),
             movieTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -79,8 +83,6 @@ class FavoriteMovieCollectionViewCell: UICollectionViewCell {
         } else {
             moviePosterImageView.image = UIImage(systemName: "film")
         }
-        
-        movieTitleLabel.text = movie.originalTitle 
     }
     
     // MARK: - Action
