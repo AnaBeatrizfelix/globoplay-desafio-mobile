@@ -8,9 +8,9 @@
 import UIKit
 
 enum Sections: Int {
-    case cinema = 0
+    case novelas = 0
     case series = 1
-    case novelas = 2
+    case cinema = 2
 }
 
 class HomeViewController: UIViewController {
@@ -28,39 +28,57 @@ class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .systemYellow
         view.addSubview(homeFeedtable)
         
         homeFeedtable.delegate = self
         homeFeedtable.dataSource = self
-        
-        configureNavBar()
+        configureHeaderLogo()
+
     }
     
-    private func configureNavBar() {
-        
-        guard let image = UIImage(named: "logoGP") else { return }
-        
-        let resizedImage = resizeImage(image: image, targetSize: CGSize(width: 120, height: 110))
-        
-        
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: resizedImage, style: .done, target: self, action: nil)
-        navigationController?.navigationBar.tintColor = .white
-    }
-    
-    private func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
-        let renderer = UIGraphicsImageRenderer(size: targetSize)
-        return renderer.image { _ in
-            image.draw(in: CGRect(origin: .zero, size: targetSize))
+    private func configureHeaderLogo() {
+        guard let logoImage = UIImage(named: "logoGP") else {
+            print("Logo não encontrada.")
+            return
         }
+
+        let headerHeight: CGFloat = 50
+        let headerView = UIView(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: view.frame.width,
+            height: headerHeight
+        ))
+
+        let whiteColor = logoImage.withRenderingMode(.alwaysTemplate)
+        let logoImageView = UIImageView(image: whiteColor)
+        logoImageView.contentMode = .scaleAspectFit
+        logoImageView.tintColor = .white
+        logoImageView.clipsToBounds = true
+
+      
+        let logoWidth: CGFloat = 300
+        let logoHeight: CGFloat = 270
+        logoImageView.frame = CGRect(
+            x: (headerView.frame.width - logoWidth) / 2,
+            y: (headerHeight - logoHeight) / 2 + 5,
+            width: logoWidth,
+            height: logoHeight
+        )
+
+        headerView.addSubview(logoImageView)
+        homeFeedtable.tableHeaderView = headerView
+       
     }
-    
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         homeFeedtable.frame = view.bounds
     }
     
 }
+//MARK: - UITableview Delegate e DataSource
 
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     
@@ -76,44 +94,42 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.identifier, for: indexPath) as? CollectionViewTableViewCell else {
             return UITableViewCell()
         }
-            
-            switch indexPath.section {
-            case Sections.cinema.rawValue:
-                Task {
-                    do {
-                        let movies = try await MovieService().getPopularMovies()
-                        cell.configure(with: movies)
-                    } catch {
-                        print("Erro Cinema:", error.localizedDescription)
-                    }
+        
+        switch indexPath.section {
+        case Sections.novelas.rawValue:
+            Task {
+                do {
+                    let novelas = try await MovieService().getPopularNovelas()
+                    cell.configure(with: novelas)
+                } catch {
+                    print("Erro Novelas:", error.localizedDescription)
                 }
-                
-            case Sections.series.rawValue:
-                Task {
-                    do {
-                        let series = try await MovieService().getPopularSeries()
-                        cell.configure(with: series)
-                    } catch {
-                        print("Erro Séries:", error.localizedDescription)
-                    }
-                }
-                
-            case Sections.novelas.rawValue:
-                Task {
-                    do {
-                        let novelas = try await MovieService().getDiscoverTV()
-                        cell.configure(with: novelas)
-                    } catch {
-                        print("Erro Novelas:", error.localizedDescription)
-                    }
-                }
-                
-            default:
-                return UITableViewCell()
             }
-
-            return cell
-
+            
+        case Sections.series.rawValue:
+            Task {
+                do {
+                    let series = try await MovieService().getPopularSeries()
+                    cell.configure(with: series)
+                } catch {
+                    print("Erro Séries:", error.localizedDescription)
+                }
+            }
+            
+        case Sections.cinema.rawValue:
+            Task {
+                do {
+                    let movies = try await MovieService().getPopularMovies()
+                    cell.configure(with: movies)
+                } catch {
+                    print("Erro Cinema:", error.localizedDescription)
+                }
+            }
+            
+        default:
+            return UITableViewCell()
+        }
+        return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
