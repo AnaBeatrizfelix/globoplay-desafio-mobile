@@ -1,27 +1,23 @@
-//
-//  FavoriteCollectionReusableView.swift
-//  GloboPlayChallenge
-//
-//  Created by ana on 02/10/25.
-//
-
 import UIKit
 
 class FavoriteCollectionReusableView: UICollectionReusableView {
     
+    // MARK: - Identificador
     static let identifier = "FavoriteCollectionReusableView"
     
     // MARK: - UI Components
+
     private lazy var headerLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 26.0, weight: .medium)
+        label.font = .systemFont(ofSize: 28.0, weight: .medium)
         label.textColor = .white
-        label.textAlignment = .center
+        label.textAlignment = .left
         return label
     }()
     
-    // MARK: - Init
+    // MARK: - Inicialização
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupConstraints()
@@ -31,14 +27,17 @@ class FavoriteCollectionReusableView: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Configure
+    // MARK: - Métodos públicos
+
     func setupTitle(_ text: String) {
         headerLabel.text = text
     }
     
     // MARK: - Layout
+  
     private func setupConstraints() {
         addSubview(headerLabel)
+        
         NSLayoutConstraint.activate([
             headerLabel.topAnchor.constraint(equalTo: topAnchor),
             headerLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),

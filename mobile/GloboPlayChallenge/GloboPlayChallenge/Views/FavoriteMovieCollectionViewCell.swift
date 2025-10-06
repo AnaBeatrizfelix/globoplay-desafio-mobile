@@ -1,5 +1,5 @@
 import UIKit
-import SDWebImage
+//import SDWebImage
 
 protocol FavoriteMovieCollectionViewCellDelegate: AnyObject {
     func didSelectFavorite(in cell: FavoriteMovieCollectionViewCell)
@@ -74,12 +74,13 @@ class FavoriteMovieCollectionViewCell: UICollectionViewCell {
             favoriteButton.widthAnchor.constraint(equalToConstant: 25)
         ])
     }
-    
     // MARK: - Configure
     func setupView(_ movie: Movie) {
-        if let posterPath = movie.posterPath {
-            let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)")
-            moviePosterImageView.sd_setImage(with: url)
+        movieTitleLabel.text = movie.title ?? movie.name ?? "Sem título"
+        
+        if let posterPath = movie.posterPath,
+           let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
+            moviePosterImageView.kf.setImage(with: url)
         } else {
             moviePosterImageView.image = UIImage(systemName: "film")
         }
