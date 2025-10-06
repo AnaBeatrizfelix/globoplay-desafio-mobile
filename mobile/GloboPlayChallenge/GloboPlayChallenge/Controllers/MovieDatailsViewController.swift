@@ -9,7 +9,6 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
     
     //MARK: - UI Components
     
-    
     private let posterImageView: UIImageView = {
         let imgView = UIImageView()
         imgView.translatesAutoresizingMaskIntoConstraints = false
@@ -301,5 +300,6 @@ extension MovieDetailsViewController {
         return CGSize(width: width, height: width * 1.5)
     }
 }
+
 
 

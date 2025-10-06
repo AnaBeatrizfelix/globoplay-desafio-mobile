@@ -14,5 +14,5 @@ struct MovieDetails: Decodable {
     let pais: String?
     let dataLancamento: String?
     let idioma: String?
-    let descricao: String
+    let descricao: String?
 }
