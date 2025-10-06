@@ -14,15 +14,17 @@ class MovieManager {
             remove(movie)
         } else {
             favoritesMovies.append(movie)
+            NotificationCenter.default.post(name: .favoritesUpdated, object: nil)
         }
     }
-    
+
     func remove(_ movie: Movie) {
         if let index = favoritesMovies.firstIndex(where: { $0.id == movie.id }) {
             favoritesMovies.remove(at: index)
             NotificationCenter.default.post(name: .favoritesUpdated, object: nil)
         }
     }
+
     
     func isFavorite(_ movie: Movie) -> Bool {
         return favoritesMovies.contains(where: { $0.id == movie.id })

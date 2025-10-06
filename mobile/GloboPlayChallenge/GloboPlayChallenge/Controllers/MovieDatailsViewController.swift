@@ -1,8 +1,13 @@
 import UIKit
+import Kingfisher
 
-class MovieDetailsViewController: UIViewController {
+class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     private var movie: Movie
+    private var movieDetails: MovieDetails?
+    private var relatedMovies: [Movie] = []
+    
+    //MARK: - UI Components
     
     private let posterImageView: UIImageView = {
         let imgView = UIImageView()
@@ -34,7 +39,7 @@ class MovieDetailsViewController: UIViewController {
         return label
     }()
     
-   
+    
     private let overviewLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -74,11 +79,12 @@ class MovieDetailsViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.titleLabel?.lineBreakMode = .byClipping
         button.contentHorizontalAlignment = .center
+        
         button.addTarget(self, action: #selector(didTapMyListButton), for: .touchUpInside)
         return button
     }()
     
-   
+    
     private let segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: ["ASSISTA TAMBÉM", "DETALHES"])
         sc.translatesAutoresizingMaskIntoConstraints = false
@@ -92,19 +98,63 @@ class MovieDetailsViewController: UIViewController {
         label.font = .systemFont(ofSize: 14)
         label.textColor = .lightGray
         label.numberOfLines = 0
+        label.isHidden = true
         return label
     }()
+    // MARK: - Assista Também
+    
+    private let relatedMoviesCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 8
+        layout.minimumInteritemSpacing = 8
+        layout.sectionInset = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+        
+        let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collection.translatesAutoresizingMaskIntoConstraints = false
+        collection.backgroundColor = .clear
+        collection.showsHorizontalScrollIndicator = false
+        collection.register(RelatedMovieCell.self, forCellWithReuseIdentifier: RelatedMovieCell.identifier)
+        return collection
+    }()
+    
     
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
         setupUI()
-        configureWithMovie()
+        configureUI()
         updateMyListButton()
         
         NotificationCenter.default.addObserver(self, selector: #selector(updateMyListButton), name: .favoritesUpdated, object: nil)
+        
+        relatedMoviesCollectionView.delegate = self
+        relatedMoviesCollectionView.dataSource = self
+        
+        segmentControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
+        // MARK: - Search for movie/series details
+        
+        Task {
+            do {
+                if movie.mediaType == "tv" {
+                    self.movieDetails = try await MovieService().getTVDetails(id: movie.id)
+                    self.relatedMovies = try await MovieService().getSimilarTVShows(id: movie.id)
+                } else {
+                    self.movieDetails = try await MovieService().getMovieDetails(id: movie.id)
+                    self.relatedMovies = try await MovieService().getSimilarMovies(id: movie.id)
+                }
+                configureUI()
+                DispatchQueue.main.async {
+                    self.relatedMoviesCollectionView.reloadData()
+                }
+            } catch {
+                print("Erro ao carregar detalhes:", error)
+            }
+        }
     }
+    //MARK: - inicializador
     
     init(movie: Movie) {
         self.movie = movie
@@ -114,30 +164,31 @@ class MovieDetailsViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    // MARK: - Favoritar
-        @objc private func didTapMyListButton() {
-            MovieManager.shared.add(movie)
-            updateMyListButton()
+    // MARK: - Favorite
+    
+    @objc private func didTapMyListButton() {
+        MovieManager.shared.add(movie)
+        updateMyListButton()
+    }
+    
+    @objc private func updateMyListButton() {
+        var config = UIButton.Configuration.bordered()
+        config.imagePlacement = .leading
+        config.imagePadding = 6
+        config.cornerStyle = .medium
+        
+        if MovieManager.shared.favoritesMovies.contains(where: { $0.id == movie.id }) {
+            config.title = "Adicionado"
+            config.image = UIImage(systemName: "checkmark")
+            config.baseForegroundColor = .lightGray
+        } else {
+            config.title = "Minha lista"
+            config.image = UIImage(systemName: "plus")
+            config.baseForegroundColor = .white
         }
         
-    @objc private func updateMyListButton() {
-            var config = UIButton.Configuration.bordered()
-            config.imagePlacement = .leading
-            config.imagePadding = 6
-            config.cornerStyle = .medium
-
-            if MovieManager.shared.favoritesMovies.contains(where: { $0.id == movie.id }) {
-                config.title = "Adicionado"
-                config.image = UIImage(systemName: "checkmark")
-                config.baseForegroundColor = .lightGray
-            } else {
-                config.title = "Minha lista"
-                config.image = UIImage(systemName: "plus")
-                config.baseForegroundColor = .white
-            }
-
-            myListButton.configuration = config
-        }
+        myListButton.configuration = config
+    }
     
     private func setupUI() {
         view.addSubview(posterImageView)
@@ -148,6 +199,7 @@ class MovieDetailsViewController: UIViewController {
         view.addSubview(myListButton)
         view.addSubview(segmentControl)
         view.addSubview(detailsLabel)
+        view.addSubview(relatedMoviesCollectionView)
         
         NSLayoutConstraint.activate([
             posterImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
@@ -185,39 +237,69 @@ class MovieDetailsViewController: UIViewController {
             
             detailsLabel.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 16),
             detailsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            detailsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            detailsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            
+            relatedMoviesCollectionView.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 20),
+            relatedMoviesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            relatedMoviesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            relatedMoviesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            
+            
+            
         ])
     }
     
-    private func configureWithMovie() {
-        if let posterPath = movie.posterPath {
-            let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)")
-            posterImageView.sd_setImage(with: url)
+    //MARK: - Controle de segumento
+    
+    @objc private func segmentChanged() {
+        let isAssistaTab = segmentControl.selectedSegmentIndex == 0
+        relatedMoviesCollectionView.isHidden = !isAssistaTab
+        detailsLabel.isHidden = isAssistaTab
+    }
+    // MARK: - Config de UI
+    private func configureUI() {
+        if let posterPath = movie.posterPath,
+           let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
+            posterImageView.kf.setImage(with: url)
         }
-        titleLabel.text = movie.title
-        subtitleLabel.text = "Filme / Série / Novela"
-        overviewLabel.text = movie.overview ?? "Sem descrição disponível."
         
-        detailsLabel.text = """
-        Título Original: \(String(describing: movie.originalTitle ?? movie.title))
-        Idioma: \(movie.originalLanguage ?? "N/A")
-        Lançamento: \(movie.releaseDate ?? "N/A")
-        """
+        titleLabel.text = movie.title ?? movie.name ?? "Sem título"
+        subtitleLabel.text = "Filme / Série / Novela"
+        overviewLabel.text = movieDetails?.descricao ?? movie.overview ?? "Sem descrição disponível."
+        
+        if let details = movieDetails {
+            detailsLabel.text = """
+                Gênero: \(details.genero ?? "")
+                País: \(details.pais ?? "")
+                Lançamento: \(details.dataLancamento ?? "")
+                Idioma: \(details.idioma ?? "")
+                """
+        }
+    }
+}
+// MARK: - UICollectionView Delegate e DataSource
+
+extension MovieDetailsViewController {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return relatedMovies.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RelatedMovieCell.identifier, for: indexPath) as? RelatedMovieCell else {
+            return UICollectionViewCell()
+        }
+        let movie = relatedMovies[indexPath.item]
+        cell.configure(with: movie)
+        return cell
+    }
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = (collectionView.frame.width - 48) / 3
+        return CGSize(width: width, height: width * 1.5)
     }
 }
 
-#Preview {
-    let mockMovie = Movie(
-          id: 1,
-          mediaType: "movie",
-          originalLanguage: "pt",
-          originalTitle: "Filme de Exemplo",
-          posterPath: "/test.jpg",
-          overview: "Esse é apenas um exemplo de filme para o Preview.",
-          //vote_content: 123,
-          releaseDate: "2025-10-02",
-          // vote_average: 7.8,
-          genreIds: [28, 12], title: "filme de exemplo"
-      )
-    return MovieDetailsViewController(movie: mockMovie)
-}
+
+
