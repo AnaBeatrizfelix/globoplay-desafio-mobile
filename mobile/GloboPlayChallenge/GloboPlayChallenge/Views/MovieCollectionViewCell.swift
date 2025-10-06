@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import SDWebImage
+import Kingfisher
 
 class MovieCollectionViewCell: UICollectionViewCell {
     
@@ -38,7 +38,7 @@ class MovieCollectionViewCell: UICollectionViewCell {
         guard let url = URL(string: "https://image.tmdb.org/t/p/w500\(model)") else {
             return
         }
-        posterImageView.sd_setImage(with: url, completed: nil)
+        posterImageView.kf.setImage(with: url)
     }
     
 }
