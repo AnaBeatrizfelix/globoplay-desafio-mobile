@@ -2,7 +2,7 @@
 //  MovieService.swift
 //  GloboPlayChallenge
 //
-//  Created by ana on 03/10/25.
+//  Created by Ana on 03/10/25.
 //
 
 import Foundation
@@ -20,24 +20,24 @@ struct MovieService {
     private let baseURL = "https://api.themoviedb.org/3"
     private let apiKey = "6ab31bc2eb05690d1679fef51b5b25b5"
     
-    // MARK: - Listagens principais
-    
-    func getPopularNovelas() async throws -> [Movie] {
-        let urlString = "\(baseURL)/discover/tv?api_key=\(apiKey)&language=pt-BR&page=1&with_genres=10766"
-        return try await fetchMovies(from: urlString)
-    }
-    
-    func getPopularSeries() async throws -> [Movie] {
-        let urlString = "\(baseURL)/tv/top_rated?api_key=\(apiKey)&language=pt-BR&page=1"
-        return try await fetchMovies(from: urlString)
-    }
+    // MARK: - Busca de conteúdo
     
     func getPopularMovies() async throws -> [Movie] {
         let urlString = "\(baseURL)/movie/popular?api_key=\(apiKey)&language=pt-BR&page=1"
         return try await fetchMovies(from: urlString)
     }
-    
-    // MARK: - Detalhes (filmes e séries)
+
+    func getPopularSeries() async throws -> [Movie] {
+        let urlString = "\(baseURL)/tv/on_the_air?api_key=\(apiKey)&language=pt-BR&page=1"
+        return try await fetchMovies(from: urlString)
+    }
+
+    func getPopularNovelas() async throws -> [Movie] {
+        let urlString = "\(baseURL)/discover/tv?api_key=\(apiKey)&language=pt-BR&page=1&with_genres=10766"
+        return try await fetchMovies(from: urlString)
+    }
+
+    // MARK: - Detalhes de conteúdo
     
     func getMovieDetails(id: Int) async throws -> MovieDetails {
         let urlString = "\(baseURL)/movie/\(id)?api_key=\(apiKey)&language=pt-BR"
@@ -57,15 +57,14 @@ struct MovieService {
         }
         
         let (data, response) = try await URLSession.shared.data(from: url)
-        
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200 else {
             throw MovieServiceError.invalidResponse
         }
         
         do {
-            let movieResponse = try JSONDecoder().decode(MovieResponse.self, from: data)
-            return movieResponse.results
+            let decoded = try JSONDecoder().decode(MovieResponse.self, from: data)
+            return decoded.results
         } catch {
             print("Erro ao decodificar lista:", error)
             throw MovieServiceError.decodingFailed
@@ -78,50 +77,34 @@ struct MovieService {
         }
         
         let (data, response) = try await URLSession.shared.data(from: url)
-        
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200 else {
             throw MovieServiceError.invalidResponse
         }
         
         do {
-            let detailsResponse = try JSONDecoder().decode(MovieDetailsResponse.self, from: data)
-            
-            let details = MovieDetails(
-                id: detailsResponse.id,
-                titleOriginal: detailsResponse.original_title
-                    ?? detailsResponse.original_name
-                    ?? detailsResponse.title
-                    ?? detailsResponse.name
-                    ?? "Título desconhecido",
-                genero: detailsResponse.genres.first?.name ?? "Não informado",
-                pais: detailsResponse.origin_country?.first ?? "Desconhecido",
-                dataLancamento: detailsResponse.release_date
-                    ?? detailsResponse.first_air_date
-                    ?? "Desconhecida",
+            let decoded = try JSONDecoder().decode(MovieDetailsResponse.self, from: data)
+            return MovieDetails(
+                id: decoded.id,
+                titleOriginal: decoded.original_title ?? decoded.original_name ?? decoded.title ?? decoded.name ?? "Sem título",
+                genero: decoded.genres.first?.name ?? "Não informado",
+                pais: decoded.origin_country?.first ?? "Desconhecido",
+                dataLancamento: decoded.release_date ?? decoded.first_air_date ?? "Desconhecida",
                 idioma: "Português",
                 descricao: "Informações adicionais disponíveis em breve."
             )
-            
-            return details
         } catch {
             print("Erro ao decodificar detalhes:", error)
             throw MovieServiceError.decodingFailed
         }
     }
 }
-// MARK: - Extensão “Assista também”
+
+// MARK: - Extensão (Assista também)
 extension MovieService {
-    
-    /// Busca filmes relacionados (“Assista também”)
-    func getSimilarMovies(id: Int) async throws -> [Movie] {
-        let urlString = "https://api.themoviedb.org/3/movie/\(id)/similar?api_key=\(apiKey)&language=pt-BR&page=1"
-        return try await fetchMovies(from: urlString)
-    }
-    
-    /// Busca séries relacionadas (“Assista também”)
-    func getSimilarTVShows(id: Int) async throws -> [Movie] {
-        let urlString = "https://api.themoviedb.org/3/tv/\(id)/similar?api_key=\(apiKey)&language=pt-BR&page=1"
+    func getSimilarContent(id: Int, type: String) async throws -> [Movie] {
+        let urlString = "https://api.themoviedb.org/3/\(type)/\(id)/similar?api_key=\(apiKey)&language=pt-BR&page=1"
+        print("Requesting URL:", urlString)
         return try await fetchMovies(from: urlString)
     }
 }

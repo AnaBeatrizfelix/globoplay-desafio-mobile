@@ -17,4 +17,5 @@ struct MovieDetailsResponse: Decodable {
     let origin_country: [String]?
     let release_date: String?
     let first_air_date: String?
+    let overview: String?
 }

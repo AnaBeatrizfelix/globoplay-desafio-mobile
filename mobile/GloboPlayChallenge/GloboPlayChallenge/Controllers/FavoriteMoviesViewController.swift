@@ -7,8 +7,8 @@ class FavoriteMoviesViewController: UIViewController {
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 24, left: 20, bottom: 24, right: 20)
-        layout.minimumLineSpacing = 20
-        layout.minimumInteritemSpacing = 16
+        layout.minimumLineSpacing = 16
+        layout.minimumInteritemSpacing = 24
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
@@ -71,7 +71,7 @@ class FavoriteMoviesViewController: UIViewController {
     }
 }
 
-// MARK: - DataSource da Collection
+// MARK: - DataSource
 extension FavoriteMoviesViewController: UICollectionViewDataSource {
   
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -117,7 +117,7 @@ extension FavoriteMoviesViewController: UICollectionViewDataSource {
     }
 }
 
-// MARK: - Layout da Collection
+// MARK: - Layout 
 extension FavoriteMoviesViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(
