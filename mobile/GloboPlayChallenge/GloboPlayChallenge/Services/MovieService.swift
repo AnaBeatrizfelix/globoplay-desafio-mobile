@@ -108,3 +108,4 @@ extension MovieService {
         return try await fetchMovies(from: urlString)
     }
 }
+

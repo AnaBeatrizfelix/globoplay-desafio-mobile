@@ -8,11 +8,11 @@
 import Foundation
 
 struct MovieDetails: Decodable {
-    let id: Int?
-    let titleOriginal: String?
-    let genero: String?
-    let pais: String?
-    let dataLancamento: String?
-    let idioma: String?
-    let descricao: String?
+    var id: Int?
+    var titleOriginal: String?
+    var genero: String?
+    var pais: String?
+    var dataLancamento: String?
+    var idioma: String?
+    var descricao: String?
 }

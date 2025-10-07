@@ -7,12 +7,12 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
     private var movieDetails: MovieDetails?
     private var relatedMovies: [Movie] = []
     
-    // MARK: - ScrollView 
+    // MARK: - ScrollView
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     
     // MARK: - UI Components
-    
+
     private lazy var backButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -23,7 +23,6 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         button.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
         return button
     }()
-    
     private lazy var  posterImageView: UIImageView = {
         let imgView = UIImageView()
         imgView.translatesAutoresizingMaskIntoConstraints = false
@@ -161,6 +160,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
                     self.movieDetails = try await MovieService().getMovieDetails(id: movie.id)
                     self.relatedMovies = try await MovieService().getSimilarContent(id: movie.id, type: "movie")
                 }
+
                 
                 DispatchQueue.main.async {
                     self.configureUI()
@@ -205,7 +205,6 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
     private func setupUI() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         
@@ -279,13 +278,13 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
     
     // MARK: - Config de UI
     private func configureUI() {
-        if let path = movie.posterPath,
-           let url = URL(string: "https://image.tmdb.org/t/p/w500\(path)") {
+        if let pathPath = movie.posterPath,
+           let url = URL(string: "https://image.tmdb.org/t/p/w500\(pathPath)") {
             posterImageView.kf.setImage(with: url)
         }
         
         titleLabel.text = movie.title ?? movie.name ?? "Sem título"
-        subtitleLabel.text = movie.mediaType == "tv" ? "Série / Novela" : "Filme"
+        subtitleLabel.text =  movie.mediaType
         overviewLabel.text = movie.overview ?? movieDetails?.descricao ?? "Sem descrição disponível."
         
         if let details = movieDetails {

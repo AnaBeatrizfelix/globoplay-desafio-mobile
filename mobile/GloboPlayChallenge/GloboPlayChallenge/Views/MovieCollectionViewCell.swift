@@ -31,6 +31,8 @@ class MovieCollectionViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         posterImageView.frame = contentView.bounds
+        
+        
     }
     
     public func configure(with model: String) {
