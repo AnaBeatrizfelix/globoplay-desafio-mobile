@@ -93,7 +93,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
     private lazy var segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: ["ASSISTA TAMBÉM", "DETALHES"])
         sc.translatesAutoresizingMaskIntoConstraints = false
-        sc.selectedSegmentIndex = 1
+        sc.selectedSegmentIndex = 0
         return sc
     }()
     
@@ -151,7 +151,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         // MARK: - Busca os detalhes corretos (tv ou movie)
         Task {
             do {
-                let type = movie.mediaType ?? (movie.firstAirDate != nil ? "tv" : "movie")
+                let type = movie.mediaType == "Cinema" ? "movie" : "tv"
                 
                 if type == "tv" {
                     self.movieDetails = try await MovieService().getTVDetails(id: movie.id)
