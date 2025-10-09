@@ -58,8 +58,8 @@ class HomeViewController: UIViewController {
         logoImageView.clipsToBounds = true
 
       
-        let logoWidth: CGFloat = 300
-        let logoHeight: CGFloat = 270
+        let logoWidth: CGFloat = 280
+        let logoHeight: CGFloat = 250
         logoImageView.frame = CGRect(
             x: (headerView.frame.width - logoWidth) / 2,
             y: (headerHeight - logoHeight) / 2 + 5,
@@ -99,7 +99,13 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         case Sections.novelas.rawValue:
             Task {
                 do {
-                    let novelas = try await MovieService().getPopularNovelas()
+                    var novelas = try await MovieService().getPopularNovelas()
+                    novelas = novelas.map { item in
+                        var novo = item
+                        novo.mediaType = "Novelas"
+                        return novo
+                        
+                    }
                     cell.configure(with: novelas)
                 } catch {
                     print("Erro Novelas:", error.localizedDescription)
@@ -109,7 +115,13 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         case Sections.series.rawValue:
             Task {
                 do {
-                    let series = try await MovieService().getPopularSeries()
+                    var series = try await MovieService().getPopularSeries()
+                    series = series.map { item in
+                        var novo = item
+                        novo.mediaType = "Séries"
+                        return novo
+                        
+                    }
                     cell.configure(with: series)
                 } catch {
                     print("Erro Séries:", error.localizedDescription)
@@ -119,8 +131,14 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         case Sections.cinema.rawValue:
             Task {
                 do {
-                    let movies = try await MovieService().getPopularMovies()
-                    cell.configure(with: movies)
+                    var cinema = try await MovieService().getPopularMovies()
+                    cinema = cinema.map { item in
+                        var novo = item
+                        novo.mediaType = "Cinema"
+                        return novo
+                        
+                    }
+                    cell.configure(with: cinema)
                 } catch {
                     print("Erro Cinema:", error.localizedDescription)
                 }

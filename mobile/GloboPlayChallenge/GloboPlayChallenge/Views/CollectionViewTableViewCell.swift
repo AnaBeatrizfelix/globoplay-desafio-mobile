@@ -14,12 +14,13 @@ class CollectionViewTableViewCell: UITableViewCell {
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(MovieCollectionViewCell.self, forCellWithReuseIdentifier: MovieCollectionViewCell.identifier)
+
         return collectionView
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.backgroundColor = .systemPink
+        contentView.backgroundColor = .systemBackground
         contentView.addSubview(collectionView)
         
         collectionView.delegate = self

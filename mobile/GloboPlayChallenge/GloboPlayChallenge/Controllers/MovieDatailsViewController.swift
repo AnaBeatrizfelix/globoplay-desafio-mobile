@@ -1,5 +1,7 @@
 import UIKit
 import Kingfisher
+import AVKit
+import AVFoundation
 
 class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
@@ -7,9 +9,23 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
     private var movieDetails: MovieDetails?
     private var relatedMovies: [Movie] = []
     
-    //MARK: - UI Components
+    // MARK: - ScrollView
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     
-    private let posterImageView: UIImageView = {
+    // MARK: - UI Components
+
+    private lazy var backButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+        button.setTitle(" Voltar", for: .normal)
+        button.tintColor = .white
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        return button
+    }()
+    private lazy var  posterImageView: UIImageView = {
         let imgView = UIImageView()
         imgView.translatesAutoresizingMaskIntoConstraints = false
         imgView.contentMode = .scaleAspectFill
@@ -18,8 +34,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         return imgView
     }()
     
-    
-    private let titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .boldSystemFont(ofSize: 24)
@@ -29,8 +44,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         return label
     }()
     
-    
-    private let subtitleLabel: UILabel = {
+    private lazy var subtitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .medium)
@@ -39,8 +53,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         return label
     }()
     
-    
-    private let overviewLabel: UILabel = {
+    private lazy var overviewLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16)
@@ -49,9 +62,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         return label
     }()
     
-    // retirei imegeEdegeInstes, por conta da versão IOS 15 que recomenda usar UIButton.Configuration
-    
-    private let assistaButton: UIButton = {
+    private lazy var assistaButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.title = "Assista"
         config.image = UIImage(systemName: "play.fill")
@@ -63,6 +74,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         
         let button = UIButton(configuration: config, primaryAction: nil)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(playMovie), for: .touchUpInside)
         return button
     }()
     
@@ -77,22 +89,18 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         
         let button = UIButton(configuration: config, primaryAction: nil)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleLabel?.lineBreakMode = .byClipping
-        button.contentHorizontalAlignment = .center
-        
         button.addTarget(self, action: #selector(didTapMyListButton), for: .touchUpInside)
         return button
     }()
     
-    
-    private let segmentControl: UISegmentedControl = {
+    private lazy var segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: ["ASSISTA TAMBÉM", "DETALHES"])
         sc.translatesAutoresizingMaskIntoConstraints = false
-        sc.selectedSegmentIndex = 1
+        sc.selectedSegmentIndex = 0
         return sc
     }()
     
-    private let detailsLabel: UILabel = {
+    private lazy var detailsLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 14)
@@ -101,61 +109,23 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         label.isHidden = true
         return label
     }()
-    // MARK: - Assista Também
     
-    private let relatedMoviesCollectionView: UICollectionView = {
+    private lazy var relatedMoviesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 8
+        layout.minimumLineSpacing = 12
         layout.minimumInteritemSpacing = 8
-        layout.sectionInset = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+        layout.sectionInset = UIEdgeInsets(top: 8, left: 12, bottom: 16, right: 12)
         
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.translatesAutoresizingMaskIntoConstraints = false
         collection.backgroundColor = .clear
-        collection.showsHorizontalScrollIndicator = false
+        collection.showsVerticalScrollIndicator = false
         collection.register(RelatedMovieCell.self, forCellWithReuseIdentifier: RelatedMovieCell.identifier)
         return collection
     }()
     
-    
-    // MARK: - Lifecycle
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .black
-        setupUI()
-        configureUI()
-        updateMyListButton()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(updateMyListButton), name: .favoritesUpdated, object: nil)
-        
-        relatedMoviesCollectionView.delegate = self
-        relatedMoviesCollectionView.dataSource = self
-        
-        segmentControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
-        // MARK: - Search for movie/series details
-        
-        Task {
-            do {
-                if movie.mediaType == "tv" {
-                    self.movieDetails = try await MovieService().getTVDetails(id: movie.id)
-                    self.relatedMovies = try await MovieService().getSimilarTVShows(id: movie.id)
-                } else {
-                    self.movieDetails = try await MovieService().getMovieDetails(id: movie.id)
-                    self.relatedMovies = try await MovieService().getSimilarMovies(id: movie.id)
-                }
-                configureUI()
-                DispatchQueue.main.async {
-                    self.relatedMoviesCollectionView.reloadData()
-                }
-            } catch {
-                print("Erro ao carregar detalhes:", error)
-            }
-        }
-    }
-    //MARK: - inicializador
-    
+    // MARK: - Inicializador
     init(movie: Movie) {
         self.movie = movie
         super.init(nibName: nil, bundle: nil)
@@ -164,10 +134,54 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    // MARK: - Favorite
+    
+    // MARK: - Ciclo de vida
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        configureUI()
+        updateMyListButton()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(updateMyListButton), name: .favoritesUpdated, object: nil)
+        segmentControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
+        segmentChanged()
+        
+        relatedMoviesCollectionView.delegate = self
+        relatedMoviesCollectionView.dataSource = self
+        navigationItem.hidesBackButton = true
+        view.backgroundColor = .black
+        
+        // MARK: - Busca os detalhes corretos (tv ou movie)
+        Task {
+            do {
+                let type = movie.mediaType == "Cinema" ? "movie" : "tv"
+                
+                if type == "tv" {
+                    self.movieDetails = try await MovieService().getTVDetails(id: movie.id)
+                    self.relatedMovies = try await MovieService().getSimilarContent(id: movie.id, type: "tv")
+                } else {
+                    self.movieDetails = try await MovieService().getMovieDetails(id: movie.id)
+                    self.relatedMovies = try await MovieService().getSimilarContent(id: movie.id, type: "movie")
+                }
+
+                
+                DispatchQueue.main.async {
+                    self.configureUI()
+                    self.relatedMoviesCollectionView.reloadData()
+                }
+            } catch {
+                print("Erro ao carregar detalhes:", error)
+            }
+        }
+    }
+    
+    // MARK: - Botões
+    @objc private func didTapBackButton() {
+        navigationController?.popViewController(animated: true)
+    }
     
     @objc private func didTapMyListButton() {
-        MovieManager.shared.add(movie)
+        FavoritesManager.shared.toggle(movie)
         updateMyListButton()
     }
     
@@ -177,7 +191,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         config.imagePadding = 6
         config.cornerStyle = .medium
         
-        if MovieManager.shared.favoritesMovies.contains(where: { $0.id == movie.id }) {
+        if FavoritesManager.shared.isFavorite(movie) {
             config.title = "Adicionado"
             config.image = UIImage(systemName: "checkmark")
             config.baseForegroundColor = .lightGray
@@ -189,110 +203,142 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         
         myListButton.configuration = config
     }
-    
+
+    // MARK: - Ação “Assista” (URL direta de vídeo online)
+    @objc private func playMovie() {
+        // URL direta do vídeo hospedado (exemplo de link .mp4)
+        guard let videoURL = URL(string: "https://media.w3.org/2010/05/sintel/trailer.mp4") else {
+            let alert = UIAlertController(title: "Erro", message: "URL inválida.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        // Cria o player com a URL
+        let player = AVPlayer(url: videoURL)
+        let playerViewController = AVPlayerViewController()
+        playerViewController.player = player
+        
+        // Apresenta o player e inicia o vídeo automaticamente
+        present(playerViewController, animated: true) {
+            player.play()
+        }
+    }
+
+    // MARK: - Layout
     private func setupUI() {
-        view.addSubview(posterImageView)
-        view.addSubview(titleLabel)
-        view.addSubview(subtitleLabel)
-        view.addSubview(overviewLabel)
-        view.addSubview(assistaButton)
-        view.addSubview(myListButton)
-        view.addSubview(segmentControl)
-        view.addSubview(detailsLabel)
-        view.addSubview(relatedMoviesCollectionView)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        [backButton, posterImageView, titleLabel, subtitleLabel, overviewLabel, assistaButton, myListButton, segmentControl, detailsLabel, relatedMoviesCollectionView].forEach {
+            contentView.addSubview($0)
+        }
         
         NSLayoutConstraint.activate([
-            posterImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            posterImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            posterImageView.widthAnchor.constraint(equalToConstant: 160),
-            posterImageView.heightAnchor.constraint(equalToConstant: 220),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            backButton.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 8),
+            backButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            
+            posterImageView.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 24),
+            posterImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            posterImageView.widthAnchor.constraint(equalToConstant: 220),
+            posterImageView.heightAnchor.constraint(equalToConstant: 340),
             
             titleLabel.topAnchor.constraint(equalTo: posterImageView.bottomAnchor, constant: 12),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-            subtitleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            subtitleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
             overviewLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 12),
-            overviewLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            overviewLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            overviewLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            overviewLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
             assistaButton.topAnchor.constraint(equalTo: overviewLabel.bottomAnchor, constant: 20),
-            assistaButton.trailingAnchor.constraint(equalTo: view.centerXAnchor, constant: -8),
+            assistaButton.trailingAnchor.constraint(equalTo: contentView.centerXAnchor, constant: -8),
             assistaButton.widthAnchor.constraint(equalToConstant: 150),
             assistaButton.heightAnchor.constraint(equalToConstant: 44),
             
-            
             myListButton.topAnchor.constraint(equalTo: assistaButton.topAnchor),
-            myListButton.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: 8),
+            myListButton.leadingAnchor.constraint(equalTo: contentView.centerXAnchor, constant: 8),
             myListButton.widthAnchor.constraint(equalTo: assistaButton.widthAnchor),
             myListButton.heightAnchor.constraint(equalTo: assistaButton.heightAnchor),
             
-            
-            
             segmentControl.topAnchor.constraint(equalTo: assistaButton.bottomAnchor, constant: 20),
-            segmentControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            segmentControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            segmentControl.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            segmentControl.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
             detailsLabel.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 16),
-            detailsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            detailsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            
+            detailsLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            detailsLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
             relatedMoviesCollectionView.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 20),
-            relatedMoviesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            relatedMoviesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            relatedMoviesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-            
-            
-            
+            relatedMoviesCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            relatedMoviesCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            relatedMoviesCollectionView.heightAnchor.constraint(equalToConstant: 500),
+            relatedMoviesCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
     }
     
-    //MARK: - Controle de segumento
-    
+    // MARK: - Troca de aba
     @objc private func segmentChanged() {
         let isAssistaTab = segmentControl.selectedSegmentIndex == 0
         relatedMoviesCollectionView.isHidden = !isAssistaTab
         detailsLabel.isHidden = isAssistaTab
     }
+    
     // MARK: - Config de UI
     private func configureUI() {
-        if let posterPath = movie.posterPath,
-           let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
+        if let pathPath = movie.posterPath,
+           let url = URL(string: "https://image.tmdb.org/t/p/w500\(pathPath)") {
             posterImageView.kf.setImage(with: url)
         }
         
         titleLabel.text = movie.title ?? movie.name ?? "Sem título"
-        subtitleLabel.text = "Filme / Série / Novela"
-        overviewLabel.text = movieDetails?.descricao ?? movie.overview ?? "Sem descrição disponível."
+        subtitleLabel.text =  movie.mediaType
+        overviewLabel.text = movie.overview ?? movieDetails?.descricao ?? "Sem descrição disponível."
         
         if let details = movieDetails {
             detailsLabel.text = """
-                Gênero: \(details.genero ?? "")
-                País: \(details.pais ?? "")
-                Lançamento: \(details.dataLancamento ?? "")
-                Idioma: \(details.idioma ?? "")
-                """
+            Ficha Técnica
+            Título Original: \(details.titleOriginal ?? "")
+            Gênero: \(details.genero ?? "")
+            País: \(details.pais ?? "")
+            Lançamento: \(details.dataLancamento ?? "")
+            Idioma: \(details.idioma ?? "")
+            Descrição: \(details.descricao ?? "")
+            """
         }
     }
 }
-// MARK: - UICollectionView Delegate e DataSource
 
+// MARK: - UICollectionView
 extension MovieDetailsViewController {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return relatedMovies.count
+        relatedMovies.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RelatedMovieCell.identifier, for: indexPath) as? RelatedMovieCell else {
             return UICollectionViewCell()
         }
-        let movie = relatedMovies[indexPath.item]
-        cell.configure(with: movie)
+        cell.configure(with: relatedMovies[indexPath.item])
         return cell
     }
+    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -300,6 +346,4 @@ extension MovieDetailsViewController {
         return CGSize(width: width, height: width * 1.5)
     }
 }
-
-
 

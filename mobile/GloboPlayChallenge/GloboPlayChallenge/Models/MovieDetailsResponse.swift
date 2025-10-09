@@ -8,13 +8,14 @@
 import Foundation
 
 struct MovieDetailsResponse: Decodable {
-    let id: Int
-    let title: String?
-    let name: String?
-    let original_title: String?
-    let original_name: String?
-    let genres: [Genre]
-    let origin_country: [String]?
-    let release_date: String?
-    let first_air_date: String?
+    var id: Int
+    var title: String?
+    var name: String?
+    var original_title: String?
+    var original_name: String?
+    var genres: [Genre]
+    var origin_country: [String]?
+    var release_date: String?
+    var first_air_date: String?
+    var overview: String?
 }

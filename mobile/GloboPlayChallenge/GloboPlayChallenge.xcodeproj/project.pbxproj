@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1F828452E8E7A3D00BECFC9 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = A1F828442E8E7A3D00BECFC9 /* SDWebImage */; };
-		A1F828472E8E7A3D00BECFC9 /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = A1F828462E8E7A3D00BECFC9 /* SDWebImageMapKit */; };
+		C64652E74D45FCC1ACF08BF9 /* Pods_GloboPlayChallenge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57A33376CD136DAE36454705 /* Pods_GloboPlayChallenge.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0CBB4C825BC7414D2FBA78ED /* Pods-GloboPlayChallenge.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GloboPlayChallenge.release.xcconfig"; path = "Target Support Files/Pods-GloboPlayChallenge/Pods-GloboPlayChallenge.release.xcconfig"; sourceTree = "<group>"; };
+		57A33376CD136DAE36454705 /* Pods_GloboPlayChallenge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GloboPlayChallenge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1F826C82E8CDACB00BECFC9 /* GloboPlayChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GloboPlayChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A514BB62A59AD2148FA39C5B /* Pods-GloboPlayChallenge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GloboPlayChallenge.debug.xcconfig"; path = "Target Support Files/Pods-GloboPlayChallenge/Pods-GloboPlayChallenge.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -41,19 +43,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1F828472E8E7A3D00BECFC9 /* SDWebImageMapKit in Frameworks */,
-				A1F828452E8E7A3D00BECFC9 /* SDWebImage in Frameworks */,
+				C64652E74D45FCC1ACF08BF9 /* Pods_GloboPlayChallenge.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0E63107184D912BF7C8D7A3C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				A514BB62A59AD2148FA39C5B /* Pods-GloboPlayChallenge.debug.xcconfig */,
+				0CBB4C825BC7414D2FBA78ED /* Pods-GloboPlayChallenge.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		6D4933DD1AB0E705A43276A1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				57A33376CD136DAE36454705 /* Pods_GloboPlayChallenge.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		A1F826BF2E8CDACB00BECFC9 = {
 			isa = PBXGroup;
 			children = (
 				A1F826CA2E8CDACB00BECFC9 /* GloboPlayChallenge */,
 				A1F826C92E8CDACB00BECFC9 /* Products */,
+				0E63107184D912BF7C8D7A3C /* Pods */,
+				6D4933DD1AB0E705A43276A1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,9 +92,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A1F826DB2E8CDACC00BECFC9 /* Build configuration list for PBXNativeTarget "GloboPlayChallenge" */;
 			buildPhases = (
+				17093B082C11055CB03C767B /* [CP] Check Pods Manifest.lock */,
 				A1F826C42E8CDACB00BECFC9 /* Sources */,
 				A1F826C52E8CDACB00BECFC9 /* Frameworks */,
 				A1F826C62E8CDACB00BECFC9 /* Resources */,
+				55554D5C1690FDF042532ACB /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -85,8 +107,6 @@
 			);
 			name = GloboPlayChallenge;
 			packageProductDependencies = (
-				A1F828442E8E7A3D00BECFC9 /* SDWebImage */,
-				A1F828462E8E7A3D00BECFC9 /* SDWebImageMapKit */,
 			);
 			productName = GloboPlayChallenge;
 			productReference = A1F826C82E8CDACB00BECFC9 /* GloboPlayChallenge.app */;
@@ -117,7 +137,6 @@
 			mainGroup = A1F826BF2E8CDACB00BECFC9;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				A1F828432E8E7A3D00BECFC9 /* XCRemoteSwiftPackageReference "SDWebImage" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A1F826C92E8CDACB00BECFC9 /* Products */;
@@ -139,6 +158,52 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		17093B082C11055CB03C767B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-GloboPlayChallenge-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		55554D5C1690FDF042532ACB /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GloboPlayChallenge/Pods-GloboPlayChallenge-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GloboPlayChallenge/Pods-GloboPlayChallenge-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GloboPlayChallenge/Pods-GloboPlayChallenge-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		A1F826C42E8CDACB00BECFC9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -152,6 +217,7 @@
 /* Begin XCBuildConfiguration section */
 		A1F826DC2E8CDACC00BECFC9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A514BB62A59AD2148FA39C5B /* Pods-GloboPlayChallenge.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -179,6 +245,7 @@
 		};
 		A1F826DD2E8CDACC00BECFC9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0CBB4C825BC7414D2FBA78ED /* Pods-GloboPlayChallenge.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -242,7 +309,7 @@
 				DEVELOPMENT_TEAM = V3W5X4NKY6;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -306,7 +373,7 @@
 				DEVELOPMENT_TEAM = V3W5X4NKY6;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -347,30 +414,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		A1F828432E8E7A3D00BECFC9 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.21.2;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		A1F828442E8E7A3D00BECFC9 /* SDWebImage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A1F828432E8E7A3D00BECFC9 /* XCRemoteSwiftPackageReference "SDWebImage" */;
-			productName = SDWebImage;
-		};
-		A1F828462E8E7A3D00BECFC9 /* SDWebImageMapKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A1F828432E8E7A3D00BECFC9 /* XCRemoteSwiftPackageReference "SDWebImage" */;
-			productName = SDWebImageMapKit;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A1F826C02E8CDACB00BECFC9 /* Project object */;
 }

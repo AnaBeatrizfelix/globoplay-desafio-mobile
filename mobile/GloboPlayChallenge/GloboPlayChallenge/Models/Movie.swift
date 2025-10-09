@@ -1,25 +1,18 @@
 import Foundation
 
-struct Movie: Decodable {
-    let id: Int
-    let mediaType: String?
-    let originalLanguage: String?
-    let originalTitle: String?
-    let posterPath: String?
-    let overview: String?
-    let releaseDate: String?
-    let genreIds: [Int]
-    let title: String?
-    let name: String?
-    let originalName: String?
-    let firstAirDate: String?
-    
-    private(set) var isSelected: Bool? = false
-    
-    //MARK: - Class Methods
-    
-    mutating func changeSelectionStatus() {
-        isSelected = !(isSelected ?? false)      }
+struct Movie: Codable, Equatable {
+    var id: Int
+    var mediaType: String?
+    var originalLanguage: String?
+    var originalTitle: String?
+    var posterPath: String?
+    var overview: String?
+    var releaseDate: String?
+    var genreIds: [Int]
+    var title: String?
+    var name: String?
+    var originalName: String?
+    var firstAirDate: String?
     
     enum CodingKeys: String, CodingKey {
         case id, overview, title, name, originalName
