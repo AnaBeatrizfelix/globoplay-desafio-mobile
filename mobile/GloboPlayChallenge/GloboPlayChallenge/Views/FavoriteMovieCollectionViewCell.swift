@@ -1,5 +1,5 @@
 import UIKit
-//import SDWebImage
+
 
 protocol FavoriteMovieCollectionViewCellDelegate: AnyObject {
     func didSelectFavorite(in cell: FavoriteMovieCollectionViewCell)
@@ -89,5 +89,14 @@ class FavoriteMovieCollectionViewCell: UICollectionViewCell {
     // MARK: - Action
     @objc private func didTapFavoriteButton(_ sender: UIButton) {
         delegate?.didSelectFavorite(in: self)
+    }
+    
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let buttonPoint = favoriteButton.convert(point, from: self)
+        
+        if favoriteButton.bounds.contains(buttonPoint) {
+            return favoriteButton
+        }
+        return super.hitTest(point, with: event)
     }
 }

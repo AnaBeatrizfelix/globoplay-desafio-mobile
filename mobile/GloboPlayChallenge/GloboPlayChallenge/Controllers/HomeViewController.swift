@@ -58,8 +58,8 @@ class HomeViewController: UIViewController {
         logoImageView.clipsToBounds = true
 
       
-        let logoWidth: CGFloat = 300
-        let logoHeight: CGFloat = 270
+        let logoWidth: CGFloat = 280
+        let logoHeight: CGFloat = 250
         logoImageView.frame = CGRect(
             x: (headerView.frame.width - logoWidth) / 2,
             y: (headerHeight - logoHeight) / 2 + 5,

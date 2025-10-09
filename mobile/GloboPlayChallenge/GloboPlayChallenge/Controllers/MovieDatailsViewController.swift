@@ -1,5 +1,7 @@
 import UIKit
 import Kingfisher
+import AVKit
+import AVFoundation
 
 class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
@@ -72,6 +74,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         
         let button = UIButton(configuration: config, primaryAction: nil)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(playMovie), for: .touchUpInside)
         return button
     }()
     
@@ -178,7 +181,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
     }
     
     @objc private func didTapMyListButton() {
-        MovieManager.shared.add(movie)
+        FavoritesManager.shared.toggle(movie)
         updateMyListButton()
     }
     
@@ -188,7 +191,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         config.imagePadding = 6
         config.cornerStyle = .medium
         
-        if MovieManager.shared.isFavorite(movie) {
+        if FavoritesManager.shared.isFavorite(movie) {
             config.title = "Adicionado"
             config.image = UIImage(systemName: "checkmark")
             config.baseForegroundColor = .lightGray
@@ -200,7 +203,28 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         
         myListButton.configuration = config
     }
-    
+
+    // MARK: - Ação “Assista” (URL direta de vídeo online)
+    @objc private func playMovie() {
+        // URL direta do vídeo hospedado (exemplo de link .mp4)
+        guard let videoURL = URL(string: "https://media.w3.org/2010/05/sintel/trailer.mp4") else {
+            let alert = UIAlertController(title: "Erro", message: "URL inválida.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        // Cria o player com a URL
+        let player = AVPlayer(url: videoURL)
+        let playerViewController = AVPlayerViewController()
+        playerViewController.player = player
+        
+        // Apresenta o player e inicia o vídeo automaticamente
+        present(playerViewController, animated: true) {
+            player.play()
+        }
+    }
+
     // MARK: - Layout
     private func setupUI() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -225,12 +249,12 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
             backButton.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 8),
-            backButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            backButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             
-            posterImageView.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 16),
+            posterImageView.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 24),
             posterImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            posterImageView.widthAnchor.constraint(equalToConstant: 160),
-            posterImageView.heightAnchor.constraint(equalToConstant: 220),
+            posterImageView.widthAnchor.constraint(equalToConstant: 220),
+            posterImageView.heightAnchor.constraint(equalToConstant: 340),
             
             titleLabel.topAnchor.constraint(equalTo: posterImageView.bottomAnchor, constant: 12),
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -289,7 +313,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         
         if let details = movieDetails {
             detailsLabel.text = """
-            Ficha Técnicare
+            Ficha Técnica
             Título Original: \(details.titleOriginal ?? "")
             Gênero: \(details.genero ?? "")
             País: \(details.pais ?? "")

@@ -1,6 +1,6 @@
 import Foundation
 
-struct Movie: Decodable {
+struct Movie: Codable, Equatable {
     var id: Int
     var mediaType: String?
     var originalLanguage: String?
@@ -13,13 +13,6 @@ struct Movie: Decodable {
     var name: String?
     var originalName: String?
     var firstAirDate: String?
-    
-    private(set) var isSelected: Bool? = false
-    
-    //MARK: - Class Methods
-    
-    mutating func changeSelectionStatus() {
-        isSelected = !(isSelected ?? false)      }
     
     enum CodingKeys: String, CodingKey {
         case id, overview, title, name, originalName

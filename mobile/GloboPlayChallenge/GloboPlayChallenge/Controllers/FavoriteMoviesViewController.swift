@@ -6,9 +6,9 @@ class FavoriteMoviesViewController: UIViewController {
     
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: 24, left: 20, bottom: 24, right: 20)
-        layout.minimumLineSpacing = 16
-        layout.minimumInteritemSpacing = 24
+        layout.sectionInset = UIEdgeInsets(top: 16, left: 20, bottom: 16, right: 20)
+        layout.minimumLineSpacing = 47
+        layout.minimumInteritemSpacing = 10
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
@@ -75,7 +75,7 @@ class FavoriteMoviesViewController: UIViewController {
 extension FavoriteMoviesViewController: UICollectionViewDataSource {
   
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return MovieManager.shared.favoritesMovies.count
+        return FavoritesManager.shared.favoriteMovies.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -86,7 +86,7 @@ extension FavoriteMoviesViewController: UICollectionViewDataSource {
             fatalError("Erro ao criar FavoriteMovieCollectionViewCell")
         }
 
-        let currentMovie = MovieManager.shared.favoritesMovies[indexPath.item]
+        let currentMovie = FavoritesManager.shared.favoriteMovies[indexPath.item]
 
         cell.setupView(currentMovie)
         cell.delegate = self
@@ -125,7 +125,12 @@ extension FavoriteMoviesViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        return CGSize(width: collectionView.frame.width / 3, height: 200)
+        let columns: CGFloat = 3
+        let spacing: CGFloat = 10
+        let totalSpacing: CGFloat = (columns - 1) * spacing + 40
+        let itemWidth = (collectionView.frame.width - totalSpacing) / columns
+        let itemHeight = itemWidth * 1.75
+        return CGSize(width: itemWidth, height: itemHeight)
     }
     
     func collectionView(
@@ -143,9 +148,9 @@ extension FavoriteMoviesViewController: FavoriteMovieCollectionViewCellDelegate 
     func didSelectFavorite(in cell: FavoriteMovieCollectionViewCell) {
         
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        let selectedMovie = MovieManager.shared.favoritesMovies[indexPath.item]
+        let selectedMovie = FavoritesManager.shared.favoriteMovies[indexPath.item]
         
-        MovieManager.shared.remove(selectedMovie)
+        FavoritesManager.shared.toggle(selectedMovie)
         collectionView.reloadData()
     }
 }
