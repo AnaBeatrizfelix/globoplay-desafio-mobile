@@ -1,11 +1,8 @@
-# Uncomment the next line to define a global platform for your project
-# platform :ios, '15.0'
+platform :ios, '15.0'
+
+# Necessário no Xcode 16 para evitar conflitos de integração
+use_frameworks! :linkage => :static
 
 target 'GloboPlayChallenge' do
-  # Comment the next line if you don't want to use dynamic frameworks
-  use_frameworks!
-
-  # Pods for GloboPlayChallenge
-pod 'Kingfisher', '~> 7.10.0'
-
+  pod 'Kingfisher', '~> 7.12.0'
 end
