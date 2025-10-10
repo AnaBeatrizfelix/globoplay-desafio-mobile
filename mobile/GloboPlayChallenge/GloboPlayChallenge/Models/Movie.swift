@@ -14,6 +14,11 @@ struct Movie: Codable, Equatable {
     var originalName: String?
     var firstAirDate: String?
     
+    // MARK: - Nome unificado
+    var displayTitle: String {
+        return title ?? name ?? originalName ?? "Sem título"
+    }
+    
     enum CodingKeys: String, CodingKey {
         case id, overview, title, name, originalName
         case mediaType = "media_type"
@@ -23,6 +28,5 @@ struct Movie: Codable, Equatable {
         case releaseDate = "release_date"
         case genreIds = "genre_ids"
         case firstAirDate = "first_air_date"
-        
     }
 }

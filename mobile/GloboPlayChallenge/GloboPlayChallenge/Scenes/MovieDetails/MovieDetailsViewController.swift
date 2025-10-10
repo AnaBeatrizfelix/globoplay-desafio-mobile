@@ -3,18 +3,32 @@ import Kingfisher
 import AVKit
 import AVFoundation
 
-class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+// MARK: - Display Protocol (View)
+protocol MovieDetailsDisplayLogic: AnyObject {
+    func displayMovieDetails(_ viewModel: MovieDetailsModels.Fetch.ViewModel)
+}
+
+final class MovieDetailsViewController: UIViewController,
+                                        MovieDetailsDisplayLogic,
+                                        UICollectionViewDelegate,
+                                        UICollectionViewDataSource,
+                                        UICollectionViewDelegateFlowLayout {
     
-    private var movie: Movie
-    private var movieDetails: MovieDetails?
+    // VIP
+    var interactor: MovieDetailsBusinessLogic?
+    
+    // Estado da View
+    private var viewModel: MovieDetailsModels.Fetch.ViewModel?
     private var relatedMovies: [Movie] = []
+    
+    // Dado de entrada (mantido)
+    private var movie: Movie
     
     // MARK: - ScrollView
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     
-    // MARK: - UI Components
-
+    // MARK: - UI Components (mantidos do seu código)
     private lazy var backButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -25,7 +39,8 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         button.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
         return button
     }()
-    private lazy var  posterImageView: UIImageView = {
+    
+    private lazy var posterImageView: UIImageView = {
         let imgView = UIImageView()
         imgView.translatesAutoresizingMaskIntoConstraints = false
         imgView.contentMode = .scaleAspectFill
@@ -96,7 +111,7 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
     private lazy var segmentControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: ["ASSISTA TAMBÉM", "DETALHES"])
         sc.translatesAutoresizingMaskIntoConstraints = false
-        sc.selectedSegmentIndex = 0
+        sc.selectedSegmentIndex = 1
         return sc
     }()
     
@@ -125,24 +140,38 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         return collection
     }()
     
-    // MARK: - Inicializador
+    // MARK: - Init
     init(movie: Movie) {
         self.movie = movie
         super.init(nibName: nil, bundle: nil)
+        setupVIP()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Ciclo de vida
+    private func setupVIP() {
+        let interactor = MovieDetailsInteractor()
+        let presenter = MovieDetailsPresenter()
+        interactor.presenter = presenter
+        presenter.viewController = self
+        self.interactor = interactor
+    }
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupUI()
-        configureUI()
+        configureStaticUIFromInputMovie()
         updateMyListButton()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(updateMyListButton), name: .favoritesUpdated, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateMyListButton),
+                                               name: .favoritesUpdated,
+                                               object: nil)
+        
         segmentControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
         segmentChanged()
         
@@ -151,28 +180,26 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         navigationItem.hidesBackButton = true
         view.backgroundColor = .black
         
-        // MARK: - Busca os detalhes corretos (tv ou movie)
-        Task {
-            do {
-                let type = movie.mediaType == "Cinema" ? "movie" : "tv"
-                
-                if type == "tv" {
-                    self.movieDetails = try await MovieService().getTVDetails(id: movie.id)
-                    self.relatedMovies = try await MovieService().getSimilarContent(id: movie.id, type: "tv")
-                } else {
-                    self.movieDetails = try await MovieService().getMovieDetails(id: movie.id)
-                    self.relatedMovies = try await MovieService().getSimilarContent(id: movie.id, type: "movie")
-                }
-
-                
-                DispatchQueue.main.async {
-                    self.configureUI()
-                    self.relatedMoviesCollectionView.reloadData()
-                }
-            } catch {
-                print("Erro ao carregar detalhes:", error)
-            }
+        // Agora busca via VIP (Interactor), sem Task direto aqui
+        interactor?.fetchMovieDetails(.init(movie: movie))
+    }
+    
+    // MARK: - Display do Presenter
+    func displayMovieDetails(_ viewModel: MovieDetailsModels.Fetch.ViewModel) {
+        self.viewModel = viewModel
+        
+        // Atualiza UI com o ViewModel
+        titleLabel.text = viewModel.title
+        subtitleLabel.text = viewModel.subtitle
+        overviewLabel.text = viewModel.overview
+        detailsLabel.text = viewModel.detailsText
+        
+        if let url = viewModel.posterURL {
+            posterImageView.kf.setImage(with: url)
         }
+        
+        self.relatedMovies = viewModel.related
+        relatedMoviesCollectionView.reloadData()
     }
     
     // MARK: - Botões
@@ -203,10 +230,9 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         
         myListButton.configuration = config
     }
-
+    
     // MARK: - Ação “Assista” (URL direta de vídeo online)
     @objc private func playMovie() {
-        // URL direta do vídeo hospedado (exemplo de link .mp4)
         guard let videoURL = URL(string: "https://media.w3.org/2010/05/sintel/trailer.mp4") else {
             let alert = UIAlertController(title: "Erro", message: "URL inválida.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -214,25 +240,42 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
             return
         }
         
-        // Cria o player com a URL
         let player = AVPlayer(url: videoURL)
         let playerViewController = AVPlayerViewController()
         playerViewController.player = player
-        
-        // Apresenta o player e inicia o vídeo automaticamente
         present(playerViewController, animated: true) {
             player.play()
         }
     }
-
-    // MARK: - Layout
+    
+    // MARK: - Troca de aba
+    @objc private func segmentChanged() {
+        let isAssistaTab = segmentControl.selectedSegmentIndex == 0
+        relatedMoviesCollectionView.isHidden = !isAssistaTab
+        detailsLabel.isHidden = isAssistaTab
+    }
+    
+    // MARK: - UI Inicial a partir do Movie de entrada (antes de carregar detalhes)
+    private func configureStaticUIFromInputMovie() {
+        if let path = movie.posterPath,
+           let url = URL(string: "https://image.tmdb.org/t/p/w500\(path)") {
+            posterImageView.kf.setImage(with: url)
+        }
+        titleLabel.text = movie.mediaType
+        subtitleLabel.text = movie.mediaType
+        // overview real virá do ViewModel; aqui mantém algo para não ficar vazio
+        overviewLabel.text = movie.overview ?? "Carregando descrição..."
+    }
+    
+    // MARK: - Layout (mantido do seu código)
     private func setupUI() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         
-        [backButton, posterImageView, titleLabel, subtitleLabel, overviewLabel, assistaButton, myListButton, segmentControl, detailsLabel, relatedMoviesCollectionView].forEach {
+        [backButton, posterImageView, titleLabel, subtitleLabel, overviewLabel,
+         assistaButton, myListButton, segmentControl, detailsLabel, relatedMoviesCollectionView].forEach {
             contentView.addSubview($0)
         }
         
@@ -293,46 +336,17 @@ class MovieDetailsViewController: UIViewController, UICollectionViewDelegate, UI
         ])
     }
     
-    // MARK: - Troca de aba
-    @objc private func segmentChanged() {
-        let isAssistaTab = segmentControl.selectedSegmentIndex == 0
-        relatedMoviesCollectionView.isHidden = !isAssistaTab
-        detailsLabel.isHidden = isAssistaTab
-    }
-    
-    // MARK: - Config de UI
-    private func configureUI() {
-        if let pathPath = movie.posterPath,
-           let url = URL(string: "https://image.tmdb.org/t/p/w500\(pathPath)") {
-            posterImageView.kf.setImage(with: url)
-        }
-        
-        titleLabel.text = movie.title ?? movie.name ?? "Sem título"
-        subtitleLabel.text =  movie.mediaType
-        overviewLabel.text = movie.overview ?? movieDetails?.descricao ?? "Sem descrição disponível."
-        
-        if let details = movieDetails {
-            detailsLabel.text = """
-            Ficha Técnica
-            Título Original: \(details.titleOriginal ?? "")
-            Gênero: \(details.genero ?? "")
-            País: \(details.pais ?? "")
-            Lançamento: \(details.dataLancamento ?? "")
-            Idioma: \(details.idioma ?? "")
-            Descrição: \(details.descricao ?? "")
-            """
-        }
-    }
-}
-
-// MARK: - UICollectionView
-extension MovieDetailsViewController {
+    // MARK: - UICollectionViewDataSource/Delegate
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        relatedMovies.count
+        return relatedMovies.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RelatedMovieCell.identifier, for: indexPath) as? RelatedMovieCell else {
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: RelatedMovieCell.identifier,
+            for: indexPath
+        ) as? RelatedMovieCell else {
             return UICollectionViewCell()
         }
         cell.configure(with: relatedMovies[indexPath.item])
@@ -346,4 +360,3 @@ extension MovieDetailsViewController {
         return CGSize(width: width, height: width * 1.5)
     }
 }
-
